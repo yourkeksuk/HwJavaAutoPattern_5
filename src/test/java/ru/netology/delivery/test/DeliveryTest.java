@@ -8,8 +8,8 @@ import ru.netology.delivery.data.DataGenerator;
 
 import java.time.Duration;
 
-import static com.codeborne.selenide.Condition.exactText;
-import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.by;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.*;
 
@@ -24,9 +24,9 @@ class DeliveryTest {
     @DisplayName("Should successful plan and plan meeting")
     void shouldSuccessfulPlanAndPlanMeeting() {
         DataGenerator.UserInfo validUser = DataGenerator.Registration.generateUser("ru");
-        int daysToAddForFirstMeeting = 4;
+        int daysToAddForFirstMeeting = 3;
         String firstMeetingDate = DataGenerator.generateDate(daysToAddForFirstMeeting);
-        int daysToAddForSecondMeeting = 7;
+        int daysToAddForSecondMeeting = 6;
         String secondMeetingDate = DataGenerator.generateDate(daysToAddForSecondMeeting);
         $("[data-test-id=city] input").setValue(validUser.getCity());
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, Keys.HOME), Keys.BACK_SPACE);
@@ -34,13 +34,13 @@ class DeliveryTest {
         $("[data-test-id=name] input").setValue(validUser.getName());
         $("[data-test-id=phone] input").setValue(validUser.getPhone());
         $("[data-test-id=agreement]").click();
-        $(byText("Запланировать")).click();
-        $("[data-test-id=notification]").shouldHave(exactText("Успешно! " + "Встреча успешно забронирована на " + firstMeetingDate), Duration.ofSeconds(15)).shouldBe(exist);
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, Keys.HOME), Keys.BACK_SPACE);
-        $("[data-test-id=date] input").setValue(secondMeetingDate);
-        $(byText("Запланировать")).click();
-        $("[data-test-id=replan-notification]").shouldHave(exactText("У вас уже запланирована встреча на другую дату. Перепланировать?"));
-        $(byText("Перепланировать")).click();
-        $("[data-test-id=success-notification]").shouldHave(exactText("Успешно! " + "Встреча успешно забронирована на " + secondMeetingDate), Duration.ofSeconds(15)).shouldBe(exist);
+        $$("button").find(exactText("Запланировать")).click();
+        $("[data-test-id='success-notification']").shouldHave(text("Встреча успешно запланирована на " + firstMeetingDate), Duration.ofSeconds(15)).shouldBe(exist);
+        $("[data-test-id='date'] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
+        $("[data-test-id='date'] input").setValue(secondMeetingDate);
+        $$("button").find(exactText("Запланировать")).click();
+        $("[data-test-id='replan-notification']").shouldHave(text("У вас уже запланирована встреча на другую дату. Перепланировать?"), Duration.ofSeconds(15)).shouldBe(exist);
+        $$("button").find(exactText("Перепланировать")).click();
+        $("[data-test-id='success-notification']").shouldHave(text("Встреча успешно запланирована на " + secondMeetingDate), Duration.ofSeconds(15)).shouldBe(exist);
     }
 }
